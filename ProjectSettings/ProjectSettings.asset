@@ -144,9 +144,6 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 11400000, guid: 18c9d459e1424724dacbc6c1cfd61326, type: 2}
   - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  - {fileID: 11400000, guid: 33ad895893f3cf24a89f53151321fae8, type: 2}
-  - {fileID: -803370292987643398, guid: 1942194cc3bd90847881a9b4a0f8e1bb, type: 2}
-  - {fileID: 1034555036701253600, guid: 1864145a67b68a041b2db1e069a9a7f0, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -523,6 +520,9 @@ PlayerSettings:
       m_SubKind: 
   m_BuildTargetBatching:
   - m_BuildTarget: Android
+    m_StaticBatching: 1
+    m_DynamicBatching: 0
+  - m_BuildTarget: Standalone
     m_StaticBatching: 1
     m_DynamicBatching: 0
   m_BuildTargetShaderSettings: []
