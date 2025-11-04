@@ -188,87 +188,87 @@ SketchUpImporter:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: 1-3
-    second: {fileID: 2800000, guid: 869d1014a24e528469adf7077d166e63, type: 3}
+    second: {fileID: 2800000, guid: 39bcccf791c74c24ab3cdc66baac56d0, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: 1-5
-    second: {fileID: 2800000, guid: 143b3e91947f0514580b788475a18609, type: 3}
+    second: {fileID: 2800000, guid: c33c2aec32a639b4da2e8f324344ea8e, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: 1-51
-    second: {fileID: 2800000, guid: 41a3f3d857b477949af373419b218e82, type: 3}
+    second: {fileID: 2800000, guid: 3493805ce4c5ebf42a7cda1cc535d4f1, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: 1-6
-    second: {fileID: 2800000, guid: a1ad3bcede2860e45b2e80ee5ed2c5bf, type: 3}
+    second: {fileID: 2800000, guid: 0f99efd959bdbed4ca3ccc27c89d0631, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: Group 3854
-    second: {fileID: 2800000, guid: c931d3072ef6d4442bdcba679a8469ba, type: 3}
+    second: {fileID: 2800000, guid: 6db7d396904daa54d9e9214b91b52896, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: Group 3855
-    second: {fileID: 2800000, guid: 18a3bcd51124d86499b7eefc68c3e615, type: 3}
+    second: {fileID: 2800000, guid: 3e1ecb4d1e9f5d948b377046d2444acf, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: Group 3856
-    second: {fileID: 2800000, guid: 812f48232af3bff4a9e9dbd3faf3e7a3, type: 3}
+    second: {fileID: 2800000, guid: c382ecd00a0dd464c9dc98e593fc59d8, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: Group 3857
-    second: {fileID: 2800000, guid: 12174587a8890674689b5dddd4d7812e, type: 3}
+    second: {fileID: 2800000, guid: 62ceddf8856514342b22a1ca8ea9d7d2, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: Group 3858
-    second: {fileID: 2800000, guid: cfeb1682d7f6d7841b857a9bf2d5950c, type: 3}
+    second: {fileID: 2800000, guid: 08bc038f2b6d1844ba657a158862fb1b, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: Translucent_Glass_Tinted_tint0xD1DCFF7A
-    second: {fileID: 2800000, guid: 65cf00d6a6cf5ea43a32443c7ad4971e, type: 3}
+    second: {fileID: 2800000, guid: e62365e5f4f19c24ab4478c7b55f238a, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: midnight-delight-500x500-1
-    second: {fileID: 2800000, guid: ec484855e463eaf49acca5394c8fc5aa, type: 3}
+    second: {fileID: 2800000, guid: 3c6036a1695a04749a80c81871c5ecc5, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: midnight-delight-500x500-2
-    second: {fileID: 2800000, guid: 64e9a74e07c3b7f4984bdbdfdf775260, type: 3}
+    second: {fileID: 2800000, guid: 9f06c0a19d4732443b908796229c75ff, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: red
-    second: {fileID: 2800000, guid: 1c2f5c53bb3541046979587f8641a8b1, type: 3}
+    second: {fileID: 2800000, guid: db3996476cb0ae447a17ac667e4554c0, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: rosewood40
-    second: {fileID: 2800000, guid: 87cca3bdf6d7baa4691a5e6c53786af0, type: 3}
+    second: {fileID: 2800000, guid: d7e4ab70883b4c5479dbc4c8b9b3b302, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: sd
-    second: {fileID: 2800000, guid: a1c86f09e4ac679489237d108f1a6566, type: 3}
+    second: {fileID: 2800000, guid: c915221044c834b47a547006273de3c8, type: 3}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: "\uCF00\uC774\uD06C \uC18D \uCD08\uCF5C\uB81B_tint0x66573DFF"
-    second: {fileID: 2800000, guid: 00d8eae21e6a6704bbc47424baa3f1e2, type: 3}
+    second: {fileID: 2800000, guid: 186a0a2072a31b2478a333e2bb8005d3, type: 3}
   materials:
     materialImportMode: 2
     materialName: 2
     materialSearch: 0
-    materialLocation: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
