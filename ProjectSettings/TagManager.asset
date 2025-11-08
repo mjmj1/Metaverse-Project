@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - Hammer
+  - Balloon
+  - Dart
   layers:
   - Default
   - TransparentFX
