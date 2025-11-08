@@ -28,6 +28,7 @@ namespace Game
         private Vector3 baseLocalPos; // 숨은 기준 위치(로컬)
         private Action<Mole> onFinished; // 매니저에게 알림
         private Coroutine routine;
+        private ScoreManager scoreManager; // 점수 매니저 참조
 
         public MoleState State { get; private set; } = MoleState.Hidden;
 
@@ -35,6 +36,13 @@ namespace Game
         {
             HideInstant();
             baseLocalPos = body.localPosition;
+
+            // ScoreManager 찾기 (Awake에서 캐싱)
+            scoreManager = FindObjectOfType<ScoreManager>();
+            if (scoreManager == null)
+            {
+                Debug.LogWarning("ScoreManager를 찾을 수 없습니다. 씬에 ScoreManager가 있는지 확인하세요.");
+            }
         }
 
         // 망치에 맞았을 때
@@ -45,7 +53,18 @@ namespace Game
 
             State = MoleState.Hit;
 
-            // 즉시 아래로 “쏙” 들어가는 연출
+            // 🔥 점수 시스템 연동
+            if (scoreManager != null)
+            {
+                scoreManager.AddMoleHit();
+                Debug.Log("두더지 타격! 점수 추가됨");
+            }
+            else
+            {
+                Debug.LogWarning("ScoreManager가 없어 점수를 추가할 수 없습니다.");
+            }
+
+            // 즉시 아래로 "쏙" 들어가는 연출
             if (routine != null) StopCoroutine(routine);
             routine = StartCoroutine(HitDown());
         }
