@@ -5516,7 +5516,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -6843846536160940139, guid: d3a8729834aa8134e884451f1ff39501, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1569189390}
   m_SourcePrefab: {fileID: 100100000, guid: d3a8729834aa8134e884451f1ff39501, type: 3}
 --- !u!4 &263683119 stripped
 Transform:
@@ -9917,6 +9920,33 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ffe6c4fbfbb523b4db01d2551c22ded8, type: 3}
   m_PrefabInstance: {fileID: 1517846368}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1569189386 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -6843846536160940139, guid: d3a8729834aa8134e884451f1ff39501, type: 3}
+  m_PrefabInstance: {fileID: 263683118}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1569189390
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1569189386}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -883253893254703242, guid: d3a8729834aa8134e884451f1ff39501, type: 3}
 --- !u!1 &1640379796
 GameObject:
   m_ObjectHideFlags: 0
@@ -11859,6 +11889,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2096350415}
   m_Mesh: {fileID: -8460225317743722085, guid: eba0bdb71690059448040ea113669ecd, type: 3}
+--- !u!1 &2111067840
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2111067841}
+  m_Layer: 0
+  m_Name: Burst Transform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2111067841
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111067840}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.352, z: 1.253}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2139625114}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2139625113
 GameObject:
   m_ObjectHideFlags: 0
@@ -11868,6 +11929,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2139625114}
+  - component: {fileID: 2139625115}
   m_Layer: 0
   m_Name: slot machine
   m_TagString: Untagged
@@ -11890,8 +11952,29 @@ Transform:
   m_Children:
   - {fileID: 543450651839118876}
   - {fileID: 8166162498207035676}
+  - {fileID: 2111067841}
   m_Father: {fileID: 350729281}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &2139625115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139625113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3227860d914c7cb4da15bdcbb1562e03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hinge: {fileID: 919132148887682348}
+  triggerAngle: -40
+  resetAngle: -10
+  spawnCount: 100
+  chocolatePrefab: {fileID: 6578252879734788846, guid: 97018bc695a852e4cb581e8a9210d85f, type: 3}
+  burstPosition: {fileID: 2111067841}
+  burstForce: 1
+  spreadAngle: 3
 --- !u!4 &14865737661773163
 Transform:
   m_ObjectHideFlags: 0
@@ -16302,8 +16385,8 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -16326,8 +16409,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.4299998, y: 3.8705742, z: 2.0919552}
-  m_Center: {x: 1.7053554, y: 1.9339126, z: 0.9990854}
+  m_Size: {x: 3.4299998, y: 3.0134149, z: 2.0919552}
+  m_Center: {x: 1.7053554, y: 2.3624923, z: 0.9990854}
 --- !u!1001 &8340413213722574203
 PrefabInstance:
   m_ObjectHideFlags: 0

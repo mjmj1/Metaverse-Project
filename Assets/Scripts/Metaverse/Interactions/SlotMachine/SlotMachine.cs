@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -6,13 +7,26 @@ namespace Metaverse.Interactions.SlotMachine
 {
     public class SlotMachine : MonoBehaviour
     {
+        [Header("레버 설정")]
+        [SerializeField] private HingeJoint hinge;
+        [SerializeField] private float triggerAngle = -40f;
+        [SerializeField] private float resetAngle = -10f;
+
+        [Header("초콜릿 설정")]
         [SerializeField] private int spawnCount = 50;
         [SerializeField] private Chocolate chocolatePrefab;
         [SerializeField] private Transform burstPosition;
 
-        private readonly WaitForSeconds burstTick = new WaitForSeconds(0.03f);
-        private ObjectPool<Chocolate> chocolatePool;
+        [Header("폭발 설정")]
+        [SerializeField] private float burstForce = 40f;
+        [SerializeField] private float spreadAngle = 3f;
 
+        private readonly WaitForSeconds burstInterval = new (0.03f);
+
+        private ObjectPool<Chocolate> chocolatePool;
+        private readonly List<Chocolate> activeChocolates = new();
+
+        private bool hasTriggered;
         private bool isBursting;
 
         void Awake()
@@ -25,34 +39,53 @@ namespace Metaverse.Interactions.SlotMachine
                 defaultCapacity: spawnCount);
         }
 
-        void Start()
+        private void Update()
         {
-            // StartCoroutine(BurstCo());
+            var angle = hinge.angle;
+
+            if (!hasTriggered && angle <= triggerAngle)
+            {
+                hasTriggered = true;
+                TriggerSlotMachine();
+            }
+
+            if (hasTriggered && angle >= resetAngle)
+            {
+                hasTriggered = false;
+            }
         }
 
-        [ContextMenu("Burst")]
-        public void Burst()
+        [ContextMenu("Trigger Slot Machine")]
+        private void TriggerSlotMachine()
         {
             if (isBursting) return;
 
-            isBursting = true;
+            foreach (var chocolate in activeChocolates)
+            {
+                chocolatePool.Release(chocolate);
+            }
+            activeChocolates.Clear();
 
-            StartCoroutine(BurstCo());
+            StartCoroutine(BurstCoroutine());
         }
 
-
-        private IEnumerator BurstCo()
+        private IEnumerator BurstCoroutine()
         {
+            isBursting = true;
+
             for (var i = 0; i < spawnCount; i++)
             {
-                var obj = chocolatePool.Get();
-                obj.transform.position = burstPosition.position;
+                var chocolate = chocolatePool.Get();
+                chocolate.transform.position = burstPosition.position;
+                chocolate.transform.rotation = Random.rotation;
 
-                obj.transform.rotation = Random.rotation;
-                obj.Burst(burstPosition, 40f, 3f);
+                chocolate.Burst(burstPosition, spreadAngle, burstForce);
+                activeChocolates.Add(chocolate);
 
-                yield return burstTick;
+                yield return burstInterval;
             }
+
+            isBursting = false;
         }
     }
 }
