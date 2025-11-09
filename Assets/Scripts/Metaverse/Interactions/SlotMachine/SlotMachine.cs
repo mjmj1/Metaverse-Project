@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace Metaverse.Interactions
+namespace Metaverse.Interactions.SlotMachine
 {
     public class SlotMachine : MonoBehaviour
     {

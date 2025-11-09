@@ -10,11 +10,11 @@ namespace Metaverse.Interactions.Darts
 
         private bool isPopped = false;
 
-        private void OnCollisionEnter(Collision collision)
+        private void OnTriggerEnter(Collider collision)
         {
             if (isPopped) return;
 
-            if (collision.gameObject.CompareTag("Dart"))
+            if (collision.CompareTag("Dart"))
             {
                 Pop();
             }
