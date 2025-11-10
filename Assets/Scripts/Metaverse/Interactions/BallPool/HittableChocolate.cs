@@ -5,6 +5,7 @@ namespace Metaverse.Interactions.BallPool
     [RequireComponent(typeof(Rigidbody))]
     public class HittableChocolate : MonoBehaviour
     {
+        [SerializeField] private Transform manager;
         [Header("파편 설정")]
         [SerializeField] private GameObject smallChocolatePrefab;
 
@@ -43,7 +44,7 @@ namespace Metaverse.Interactions.BallPool
 
             for (var i = 0; i < shardCount; i++)
             {
-                var shard = Instantiate(smallChocolatePrefab, transform.position, Random.rotation);
+                var shard = Instantiate(smallChocolatePrefab, transform.position, Random.rotation, manager);
                 var shardRb = shard.GetComponent<Rigidbody>();
 
                 if (shardRb != null)

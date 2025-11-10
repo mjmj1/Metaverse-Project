@@ -23,7 +23,7 @@ SketchUpImporter:
     materialImportMode: 2
     materialName: 2
     materialSearch: 0
-    materialLocation: 0
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

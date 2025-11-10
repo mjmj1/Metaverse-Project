@@ -4,6 +4,7 @@ namespace Metaverse.Interactions.SlotMachine
 {
     public class SlotMachineChocolate : MonoBehaviour
     {
+        
         private Rigidbody rb;
 
         private void Awake()
@@ -17,10 +18,8 @@ namespace Metaverse.Interactions.SlotMachine
 
             var angle = Random.Range(-halfAngle, halfAngle);
 
-            // 회전량 생성 (Y축 기준 회전, 즉 좌우 회전)
             var rotation = Quaternion.AngleAxis(angle, origin.up);
 
-            // 부모의 forward(z축)를 기준으로 회전
             return rotation * origin.forward;
         }
 

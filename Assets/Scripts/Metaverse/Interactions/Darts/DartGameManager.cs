@@ -18,11 +18,16 @@ namespace Metaverse.Interactions.Darts
         private void Start()
         {
             ResetDart();
+            ResetBalloon();
         }
 
         public void ResetDart()
         {
             dartHolder.Init();
+        }
+
+        public void ResetBalloon()
+        {
             ResetBalloons();
             SpawnBalloons();
         }

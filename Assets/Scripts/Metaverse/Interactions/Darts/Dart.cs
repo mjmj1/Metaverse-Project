@@ -56,7 +56,7 @@ namespace Metaverse.Interactions.Darts
 
         private void OnSelect()
         {
-            Debug.Log("🎯 Dart Grabbed (Select)");
+            print("🎯 Dart Grabbed (Select)");
 
             rb.isKinematic = false;
             isGrabbed = true;
