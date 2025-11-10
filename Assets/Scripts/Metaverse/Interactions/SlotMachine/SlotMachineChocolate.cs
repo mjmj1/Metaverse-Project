@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Metaverse.Interactions
+namespace Metaverse.Interactions.SlotMachine
 {
-    public class Chocolate : MonoBehaviour
+    public class SlotMachineChocolate : MonoBehaviour
     {
         private Rigidbody rb;
 

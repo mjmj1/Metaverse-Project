@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.Serialization;
 
 namespace Metaverse.Interactions.SlotMachine
 {
@@ -14,7 +15,7 @@ namespace Metaverse.Interactions.SlotMachine
 
         [Header("초콜릿 설정")]
         [SerializeField] private int spawnCount = 50;
-        [SerializeField] private Chocolate chocolatePrefab;
+        [FormerlySerializedAs("chocolatePrefab")] [SerializeField] private SlotMachineChocolate slotMachineChocolatePrefab;
         [SerializeField] private Transform burstPosition;
 
         [Header("폭발 설정")]
@@ -23,16 +24,16 @@ namespace Metaverse.Interactions.SlotMachine
 
         private readonly WaitForSeconds burstInterval = new (0.03f);
 
-        private ObjectPool<Chocolate> chocolatePool;
-        private readonly List<Chocolate> activeChocolates = new();
+        private ObjectPool<SlotMachineChocolate> chocolatePool;
+        private readonly List<SlotMachineChocolate> activeChocolates = new();
 
         private bool hasTriggered;
         private bool isBursting;
 
         void Awake()
         {
-            chocolatePool = new ObjectPool<Chocolate>(
-                createFunc: () => Instantiate(chocolatePrefab, burstPosition),
+            chocolatePool = new ObjectPool<SlotMachineChocolate>(
+                createFunc: () => Instantiate(slotMachineChocolatePrefab, burstPosition),
                 actionOnGet: go => go.gameObject.SetActive(true),
                 actionOnRelease: go => go.gameObject.SetActive(false),
                 actionOnDestroy: Destroy,
