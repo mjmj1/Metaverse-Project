@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 
-namespace Metaverse.Interactions
+namespace Metaverse.Interactions.BallPool
 {
     [RequireComponent(typeof(Rigidbody))]
     public class HittableChocolate : MonoBehaviour
     {
-        [Header("파편 설정")] [SerializeField] private GameObject smallChocolatePrefab;
+        [Header("파편 설정")]
+        [SerializeField] private GameObject smallChocolatePrefab;
 
         [SerializeField] private int shardCount = 8;
         [SerializeField] private float spreadForce = 5f;
@@ -55,7 +56,7 @@ namespace Metaverse.Interactions
         }
 
         /// <summary>
-        ///     퍼짐 방향을 랜덤한 반구 형태로 반환
+        /// 퍼짐 방향을 랜덤한 반구 형태로 반환
         /// </summary>
         private Vector3 GetRandomSpreadDirection()
         {
