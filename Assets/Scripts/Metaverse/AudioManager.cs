@@ -1,70 +1,170 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.Pool;
 
-public class AudioManager : MonoBehaviour
+namespace Metaverse
 {
-    public static AudioManager Instance { get; private set; }
-
-    [Header("사운드 채널")]
-    [SerializeField] private AudioSource sfxSource;
-    [SerializeField] private AudioSource bgmSource;
-
-    [Header("효과음 목록")]
-    [SerializeField] private AudioClip clickSound;
-    [SerializeField] private AudioClip explodeSound;
-    [SerializeField] private AudioClip resetSound;
-
-    private void Awake()
+    public class AudioManager : MonoBehaviour
     {
-        if (Instance != null && Instance != this)
+        [Header("Mixer & Groups")]
+        [SerializeField] private AudioMixer mixer;
+
+        [SerializeField] private AudioMixerGroup bgmGroup;
+        [SerializeField] private AudioMixerGroup sfxGroup; // 3D SFX용
+
+        [Header("BGM Clips")]
+        [SerializeField] private AudioClip bgm;
+        [SerializeField] private AudioSource bgmSource;
+
+        [Header("SFX Clips")]
+        [SerializeField] private AudioClip chocolateBreakClip;
+        [SerializeField] private AudioClip dartThrowClip;
+        [SerializeField] private AudioClip balloonPopClip;
+
+        [Header("3D SFX Pool Settings")]
+        [SerializeField] private int poolCapacity = 10;
+        [SerializeField] private int poolMaxSize = 20;
+
+        private ObjectPool<AudioSource> sfxPool;
+
+        public static AudioManager Instance { get; private set; }
+
+        private void Awake()
         {
-            Destroy(gameObject);
-            return;
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            InitBgmSource();
+            InitSfxPool();
         }
-        Instance = this;
-    }
 
-    public void PlaySfxAtPosition(string key, Vector3 position)
-    {
-        var clip = GetClipByKey(key);
-        if (clip == null) return;
-
-        // 임시 AudioSource 생성
-        GameObject temp = new GameObject("TempAudio");
-        temp.transform.position = position;
-
-        var source = temp.AddComponent<AudioSource>();
-        source.clip = clip;
-
-        source.spatialBlend = 1.0f;        // ✅ 3D 사운드
-        source.minDistance = 1.0f;
-        source.maxDistance = 20.0f;
-        source.rolloffMode = AudioRolloffMode.Logarithmic;
-        source.dopplerLevel = 0;
-
-        source.Play();
-        Destroy(temp, clip.length + 0.2f); // 클립 끝나면 제거
-    }
-
-
-    private AudioClip GetClipByKey(string key)
-    {
-        return key switch
+        private void Start()
         {
-            "click" => clickSound,
-            "explode" => explodeSound,
-            "reset" => resetSound,
-            _ => null
-        };
-    }
+            PlayBGM(bgm);
+        }
 
-    public void PlayBGM(AudioClip bgm)
-    {
-        if (bgmSource.clip != bgm)
+        #region Init
+
+        private void InitBgmSource()
         {
-            bgmSource.clip = bgm;
+            if (!bgmSource)
+            {
+                bgmSource = gameObject.AddComponent<AudioSource>();
+            }
+
+            bgmSource.playOnAwake = false;
+            bgmSource.loop = true;
+            bgmSource.spatialBlend = 0f; // 2D BGM
+            bgmSource.outputAudioMixerGroup = bgmGroup;
+        }
+
+        private void InitSfxPool()
+        {
+            sfxPool = new ObjectPool<AudioSource>(
+                () =>
+                {
+                    var go = new GameObject("PooledSFX3D");
+                    go.transform.SetParent(transform);
+                    var src = go.AddComponent<AudioSource>();
+
+                    src.outputAudioMixerGroup = sfxGroup;
+                    src.playOnAwake = false;
+                    src.loop = false;
+                    src.spatialBlend = 1f;
+                    src.minDistance = 1f;
+                    src.maxDistance = 8f;
+                    src.dopplerLevel = 1f;
+                    src.spread = 360f;
+                    src.rolloffMode = AudioRolloffMode.Linear;
+
+                    go.SetActive(false);
+                    return src;
+                },
+                src => src.gameObject.SetActive(true),
+                src =>
+                {
+                    src.Stop();
+                    src.clip = null;
+                    src.gameObject.SetActive(false);
+                },
+                src => Destroy(src.gameObject),
+                false,
+                poolCapacity,
+                poolMaxSize
+            );
+        }
+
+        #endregion
+
+        #region Volum
+
+        public void SetBGMVolume(float linear)
+        {
+            var db = linear <= 0.0001f ? -80f : Mathf.Log10(Mathf.Clamp01(linear)) * 20f;
+            mixer.SetFloat("BGM", db);
+        }
+
+        public void SetSfxVolume(float linear)
+        {
+            var db = linear <= 0.0001f ? -80f : Mathf.Log10(Mathf.Clamp01(linear)) * 20f;
+            mixer.SetFloat("SFX", db);
+        }
+
+        #endregion
+
+        #region BGM API
+
+        public void PlayBGM(AudioClip clip, float volume = 1f, bool loop = true)
+        {
+            if (!clip) return;
+
+            if (bgmSource.clip == clip && bgmSource.isPlaying) return;
+
+            bgmSource.clip = clip;
+            bgmSource.outputAudioMixerGroup = bgmGroup;
+            bgmSource.volume = volume;
+            bgmSource.loop = loop;
             bgmSource.Play();
         }
-    }
 
-    public void StopBGM() => bgmSource.Stop();
+        public void StopBGM()
+        {
+            bgmSource.Stop();
+        }
+
+        #endregion
+
+        #region SFX API
+
+        /// <summary>
+        /// 월드 좌표 기준 3D SFX 재생
+        /// </summary>
+        public void PlaySfx(AudioClip clip, Vector3 position, float volume = 1f, float pitch = 1f)
+        {
+            if (!clip) return;
+
+            var src = sfxPool.Get();
+            src.transform.position = position;
+            src.clip = clip;
+            src.volume = volume;
+            src.pitch = pitch;
+            src.Play();
+            StartCoroutine(ReleaseWhenDone(src));
+        }
+
+        private IEnumerator ReleaseWhenDone(AudioSource src)
+        {
+            yield return new WaitUntil(() => !src.isPlaying);
+            sfxPool.Release(src);
+        }
+
+        #endregion
+    }
 }

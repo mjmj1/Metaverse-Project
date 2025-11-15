@@ -9,6 +9,7 @@ namespace Metaverse.Interactions.Darts
         [Header("Refs")]
         [SerializeField] private HandGrabInteractable grab;
         [SerializeField] private TrailRenderer trail;
+        [SerializeField] private AudioClip sfx;
 
         [Header("Throw Settings")]
         [SerializeField] private float velocityMultiplier = 1.0f;
@@ -83,8 +84,10 @@ namespace Metaverse.Interactions.Darts
 
         private void OnNormal()
         {
-            isGrabbed = true;
+            isGrabbed = false;
             trail.enabled = true;
+
+            AudioManager.Instance.PlaySfx(sfx, transform.position);
         }
 
         private void Update()

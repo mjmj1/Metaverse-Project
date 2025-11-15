@@ -6,7 +6,7 @@ namespace Metaverse.Interactions.Darts
     public class Balloon : MonoBehaviour
     {
         [SerializeField] private float shrinkDuration = 0.2f;
-        [SerializeField] private GameObject popEffectPrefab;
+        [SerializeField] private AudioClip popSfx;
 
         private bool isPopped = false;
 
@@ -27,6 +27,8 @@ namespace Metaverse.Interactions.Darts
             transform.DOScale(Vector3.zero, shrinkDuration)
                 .SetEase(Ease.InBack)
                 .OnComplete(() => Destroy(gameObject));
+
+            AudioManager.Instance.PlaySfx(popSfx, transform.position);
         }
     }
 }
