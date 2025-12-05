@@ -17,14 +17,9 @@ namespace Metaverse
         [SerializeField] private AudioClip bgm;
         [SerializeField] private AudioSource bgmSource;
 
-        [Header("SFX Clips")]
-        [SerializeField] private AudioClip chocolateBreakClip;
-        [SerializeField] private AudioClip dartThrowClip;
-        [SerializeField] private AudioClip balloonPopClip;
-
         [Header("3D SFX Pool Settings")]
-        [SerializeField] private int poolCapacity = 10;
-        [SerializeField] private int poolMaxSize = 20;
+        [SerializeField] private int poolCapacity = 3;
+        [SerializeField] private int poolMaxSize = 5;
 
         private ObjectPool<AudioSource> sfxPool;
 
@@ -77,10 +72,10 @@ namespace Metaverse
                     src.outputAudioMixerGroup = sfxGroup;
                     src.playOnAwake = false;
                     src.loop = false;
-                    src.spatialBlend = 1f;
+                    src.spatialBlend =0f;
                     src.minDistance = 1f;
-                    src.maxDistance = 8f;
-                    src.dopplerLevel = 1f;
+                    src.maxDistance = 10f;
+                    src.dopplerLevel = 0f;
                     src.spread = 360f;
                     src.rolloffMode = AudioRolloffMode.Linear;
 

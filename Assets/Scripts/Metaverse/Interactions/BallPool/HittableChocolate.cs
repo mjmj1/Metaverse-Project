@@ -8,7 +8,7 @@ namespace Metaverse.Interactions.BallPool
         [SerializeField] private Transform manager;
         [Header("파편 설정")]
         [SerializeField] private GameObject smallChocolatePrefab;
-
+        [SerializeField] private AudioClip chocolateBreakClip;
         [SerializeField] private int shardCount = 8;
         [SerializeField] private float spreadForce = 5f;
         [SerializeField] private float spreadAngle = 120f;
@@ -25,6 +25,8 @@ namespace Metaverse.Interactions.BallPool
         /// </summary>
         public void Burst(Vector3 direction, float force)
         {
+            AudioManager.Instance.PlaySfx(chocolateBreakClip, transform.position);
+
             // 기존 초콜릿 본체 튕겨나감
             rb.AddForce(direction * force, ForceMode.Impulse);
 

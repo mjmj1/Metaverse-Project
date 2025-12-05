@@ -7,9 +7,9 @@ namespace Metaverse.Interactions.Darts
     public class Dart : MonoBehaviour
     {
         [Header("Refs")]
-        [SerializeField] private HandGrabInteractable grab;
+        [SerializeField] private HandGrabInteractable hGrab;
+        [SerializeField] private GrabInteractable grab;
         [SerializeField] private TrailRenderer trail;
-        [SerializeField] private AudioClip sfx;
 
         [Header("Throw Settings")]
         [SerializeField] private float velocityMultiplier = 1.0f;
@@ -25,6 +25,7 @@ namespace Metaverse.Interactions.Darts
         {
             rb = GetComponent<Rigidbody>();
             grab.WhenStateChanged += WhenStateChanged;
+            hGrab.WhenStateChanged += WhenStateChanged;
 
             Init();
         }
@@ -32,6 +33,7 @@ namespace Metaverse.Interactions.Darts
         private void OnDestroy()
         {
             grab.WhenStateChanged -= WhenStateChanged;
+            hGrab.WhenStateChanged -= WhenStateChanged;
         }
 
         public void Init()
@@ -86,8 +88,6 @@ namespace Metaverse.Interactions.Darts
         {
             isGrabbed = false;
             trail.enabled = true;
-
-            AudioManager.Instance.PlaySfx(sfx, transform.position);
         }
 
         private void Update()

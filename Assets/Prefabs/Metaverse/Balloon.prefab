@@ -122,4 +122,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shrinkDuration: 0.25
-  popEffectPrefab: {fileID: 0}
+  popSfx: {fileID: 8300000, guid: 398e2b853b693cd4b98864efa477aafd, type: 3}

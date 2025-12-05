@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Metaverse.Interactions;
-using Metaverse.Interactions.BallPool;
-using Oculus.Interaction;
-using Oculus.Interaction.HandGrab;
+﻿using Metaverse.Interactions.BallPool;
 using UnityEngine;
 
 namespace Metaverse
@@ -11,9 +6,6 @@ namespace Metaverse
     [RequireComponent(typeof(Rigidbody))]
     public class Hammer : MonoBehaviour
     {
-        [Header("Interaction")]
-        [SerializeField] private HandGrabInteractable interactable;
-
         [Header("속도 기반 파워 설정")]
         [SerializeField] private float minSpeed = 0.5f;
 
