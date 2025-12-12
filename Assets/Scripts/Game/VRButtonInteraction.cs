@@ -6,7 +6,7 @@ namespace Game
 {
     public class VRButtonInteraction : MonoBehaviour
     {
-        [Header("VR Interaction")]
+        /*[Header("VR Interaction")]
         [SerializeField] private XRDirectInteractor rightHandInteractor;
         [SerializeField] private float rayDistance = 10f;
         [SerializeField] private LineRenderer laserPointer;
@@ -135,13 +135,13 @@ namespace Game
                     button.onClick.Invoke();
                 }
             }
-        }
+        }*/
     }
 
     // VR 버튼을 위한 간단한 콜라이더 트리거
     public class VRButtonTrigger : MonoBehaviour
     {
-        private Button button;
+        /*private Button button;
 
         private void Awake()
         {
@@ -156,6 +156,6 @@ namespace Game
                 Debug.Log($"VR 버튼 트리거: {button.name}");
                 button.onClick.Invoke();
             }
-        }
+        }*/
     }
 }

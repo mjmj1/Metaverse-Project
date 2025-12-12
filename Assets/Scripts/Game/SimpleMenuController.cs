@@ -19,7 +19,7 @@ namespace Game
         [SerializeField] private TextMeshProUGUI highScoreText;
 
         [Header("Game References")]
-        [SerializeField] private GameStateManager gameStateManager;
+        [SerializeField] private GameManager gameManager;
         [SerializeField] private ScoreManager scoreManager;
 
         private void Awake()
@@ -37,8 +37,8 @@ namespace Game
         private void FindComponents()
         {
             // GameStateManager 찾기
-            if (gameStateManager == null)
-                gameStateManager = FindObjectOfType<GameStateManager>();
+            if (gameManager == null)
+                gameManager = FindObjectOfType<GameManager>();
 
             // ScoreManager 찾기
             if (scoreManager == null)
@@ -115,9 +115,9 @@ namespace Game
             Debug.Log("게임 시작 버튼 클릭!");
 
             // 게임 시작
-            if (gameStateManager != null)
+            if (gameManager != null)
             {
-                gameStateManager.StartGame();
+                gameManager.StartGame();
             }
 
             // 게임 플레이 패널 표시
@@ -129,9 +129,9 @@ namespace Game
             Debug.Log("재시작 버튼 클릭!");
 
             // 게임 재시작
-            if (gameStateManager != null)
+            if (gameManager != null)
             {
-                gameStateManager.RestartGame();
+                gameManager.RestartGame();
             }
 
             // 게임 플레이 패널 표시
@@ -143,9 +143,9 @@ namespace Game
             Debug.Log("메인 메뉴 버튼 클릭!");
 
             // 메인 메뉴로 이동
-            if (gameStateManager != null)
+            if (gameManager != null)
             {
-                gameStateManager.GoToMenu();
+                gameManager.ReturnMenu();
             }
 
             // 메인 메뉴 표시

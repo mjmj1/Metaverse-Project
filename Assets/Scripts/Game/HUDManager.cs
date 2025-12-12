@@ -66,8 +66,8 @@ namespace Game
             // Score Manager 이벤트 구독
             if (scoreManager != null)
             {
-                scoreManager.OnScoreChanged += UpdateScoreDisplay;
-                scoreManager.OnComboChanged += UpdateComboDisplay;
+                //scoreManager.OnScoreChanged += UpdateScoreDisplay;
+                //scoreManager.OnComboChanged += UpdateComboDisplay;
             }
 
             // 타이머 초기화
@@ -128,7 +128,7 @@ namespace Game
         {
             Debug.Log("시간 종료! 게임 오버");
             // 여기에 게임 오버 로직 추가
-            var gameStateManager = FindObjectOfType<GameStateManager>();
+            var gameStateManager = FindObjectOfType<GameManager>();
             if (gameStateManager != null)
             {
                 gameStateManager.EndGame();
@@ -158,8 +158,8 @@ namespace Game
             // 이벤트 구독 해제
             if (scoreManager != null)
             {
-                scoreManager.OnScoreChanged -= UpdateScoreDisplay;
-                scoreManager.OnComboChanged -= UpdateComboDisplay;
+                //scoreManager.OnScoreChanged -= UpdateScoreDisplay;
+                //scoreManager.OnComboChanged -= UpdateComboDisplay;
             }
         }
     }
