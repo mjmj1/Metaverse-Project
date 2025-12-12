@@ -10,9 +10,10 @@ namespace Game.UI
         [Header("Main Menu UI")]
         [SerializeField] private Canvas mainMenu;
         [SerializeField] private Button gameStartButton;
-
         [SerializeField] private Slider timeSlider;
         [SerializeField] private TextMeshProUGUI timeSliderValueText;
+        [SerializeField] private Slider rangeSlider;
+        [SerializeField] private TextMeshProUGUI rangeSliderValueText;
 
         [Header("Game Info UI")]
         [SerializeField] private Canvas gameInfo;
@@ -23,7 +24,7 @@ namespace Game.UI
         [Header("Result UI")]
         [SerializeField] private Canvas result;
         [SerializeField] private Button resultHomeButton;
-        [SerializeField] private TextMeshProUGUI resultText;
+        [SerializeField] private TextMeshProUGUI finalScoreText;
 
         [Header("Pause UI")]
         [SerializeField] private Canvas pause;
@@ -37,7 +38,7 @@ namespace Game.UI
             GameManager.Instance.OnGameStart += OnGameStart;
             GameManager.Instance.OnGameResume += OnGameStart;
             GameManager.Instance.OnGamePause += OnGamePause;
-            GameManager.Instance.onGameOver += OnGameOver;
+            GameManager.Instance.OnGameOver += OnGameOver;
 
             gameStartButton.onClick.AddListener(GameManager.Instance.StartGame);
             resultHomeButton.onClick.AddListener(GameManager.Instance.ReturnMenu);
@@ -48,9 +49,15 @@ namespace Game.UI
 
             var defaultTime = GameManager.Instance.GetGameTime();
             timeSlider.value = defaultTime;
-            UpdateSliderText(defaultTime);
+            UpdateTimeSliderText(defaultTime);
 
             timeSlider.onValueChanged.AddListener(OnTimeSliderChanged);
+
+            var defaultRange = GameManager.Instance.GetGameTime();
+            rangeSlider.value = defaultRange;
+            UpdateRangeSliderText(defaultRange);
+
+            rangeSlider.onValueChanged.AddListener(OnRangeSliderChanged);
 
             SwitchUI(GameState.Menu);
         }
@@ -61,7 +68,7 @@ namespace Game.UI
             GameManager.Instance.OnGameStart -= OnGameStart;
             GameManager.Instance.OnGameResume -= OnGameStart;
             GameManager.Instance.OnGamePause -= OnGamePause;
-            GameManager.Instance.onGameOver -= OnGameOver;
+            GameManager.Instance.OnGameOver -= OnGameOver;
 
             gameStartButton.onClick.RemoveListener(GameManager.Instance.StartGame);
             resultHomeButton.onClick.RemoveListener(GameManager.Instance.ReturnMenu);
@@ -71,6 +78,7 @@ namespace Game.UI
             homeButton.onClick.RemoveListener(GameManager.Instance.ReturnMenu);
 
             timeSlider.onValueChanged.RemoveListener(OnTimeSliderChanged);
+            timeSlider.onValueChanged.RemoveListener(OnRangeSliderChanged);
         }
 
         private void SwitchUI(GameState state)
@@ -114,19 +122,27 @@ namespace Game.UI
         {
             GameManager.Instance.SetGameTime(value);
 
-            UpdateSliderText(value);
+            UpdateTimeSliderText(value);
         }
 
-        private void UpdateSliderText(float value) => timeSliderValueText.text = $"{value:F0}";
+        private void OnRangeSliderChanged(float value)
+        {
+            GameManager.Instance.SetSpawnRange(value);
+
+            UpdateRangeSliderText(value);
+        }
+
+        private void UpdateTimeSliderText(float value) => timeSliderValueText.text = $"{value:F0}";
+        private void UpdateRangeSliderText(float value) => rangeSliderValueText.text = $"{value:F0}";
 
         public void UpdateTimer(float time) => timerText.text = time.ToString("F2");
 
         public void UpdateScore(int score) => scoreText.text = score.ToString();
 
+        public void SetFinalScoreText(int score) => finalScoreText.text = $"SCORE: {score}";
+
         public void SetCountdownText(string text, bool isActive)
         {
-            if (!countdownText) return;
-
             countdownText.gameObject.SetActive(isActive);
             countdownText.text = text;
         }

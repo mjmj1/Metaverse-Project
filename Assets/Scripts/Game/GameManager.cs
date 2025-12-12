@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Game.UI;
+using Meta.WitAi;
 using UnityEngine.Events;
 
 namespace Game
@@ -16,21 +17,24 @@ namespace Game
     public class GameManager : MonoBehaviour
     {
         [Header("Game Components")]
-        [SerializeField] private PlayManager playManager;
+        [SerializeField] private Transform playerHead;
+        [SerializeField] private GameObject weapon;
+        [SerializeField] private MoleManager moleManager;
         [SerializeField] private UIManager uiManager;
 
         // 게임 설정 기능
         // 기본 30초
         private float gameDuration = 30f;
+        private float spawnRange = 0f;
 
         // 게임 상태 변경 이벤트
-        public event UnityAction<GameState, GameState> onStateChanged;
+        public event UnityAction<GameState, GameState> OnStateChanged;
 
         public event UnityAction OnMenuEnter;
         public event UnityAction OnGameStart;
         public event UnityAction OnGamePause;
         public event UnityAction OnGameResume;
-        public event UnityAction onGameOver;
+        public event UnityAction OnGameOver;
 
         private GameState previousState;
         private GameState currentState;
@@ -42,7 +46,7 @@ namespace Game
             {
                 previousState = currentState;
                 currentState = value;
-                onStateChanged?.Invoke(previousState, currentState);
+                OnStateChanged?.Invoke(previousState, currentState);
             }
         }
 
@@ -58,7 +62,7 @@ namespace Game
             if (!Instance) Instance = this;
             else Destroy(gameObject);
 
-            onStateChanged += OnGameStateChanged;
+            OnStateChanged += OnGameStateChanged;
         }
 
         private void Start()
@@ -74,14 +78,25 @@ namespace Game
             }
         }
 
-        public void TogglePause()
+        private void TogglePause()
         {
             if (currentState == GameState.Playing) PauseGame();
             else if (currentState == GameState.Paused) ResumeGame();
         }
 
+        public void AddScore(int score)
+        {
+            currentScore += score;
+            uiManager.UpdateScore(currentScore);
+        }
+
+        public int GetScore() => currentScore;
+
         public void SetGameTime(float time) => gameDuration = time;
         public float GetGameTime() => gameDuration;
+
+        public void SetSpawnRange(float range) => spawnRange = range;
+        public float GetSpawnRange() => spawnRange;
 
         public void StartGame() => GameState = GameState.Playing;
         public void EndGame() => GameState = GameState.GameOver;
@@ -134,7 +149,7 @@ namespace Game
                     OnGamePause?.Invoke();
                     break;
                 case GameState.GameOver:
-                    onGameOver?.Invoke();
+                    OnGameOver?.Invoke();
                     HandleGameOverState();
                     break;
             }
@@ -144,7 +159,7 @@ namespace Game
         {
             Time.timeScale = 1f;
             if (gameRoutine != null) StopCoroutine(gameRoutine);
-            if (playManager) playManager.StopGameLoop();
+            if (moleManager) moleManager.StopGameLoop();
         }
 
         private void HandlePlayingState()
@@ -165,13 +180,24 @@ namespace Game
         private void HandleGameOverState()
         {
             if (gameRoutine != null) StopCoroutine(gameRoutine);
-            if (playManager) playManager.StopGameLoop();
+            if (moleManager) moleManager.StopGameLoop();
         }
 
         // --- 핵심: 게임 루프 코루틴 ---
         private IEnumerator GameSequenceRoutine()
         {
             // 1. 초기화
+            moleManager.Initialize();
+
+            var spawnDistance = 0.5f;
+
+            var spawnPos = playerHead.position + playerHead.forward * spawnDistance + playerHead.up * -0.3f;
+
+            var spawnRot = Quaternion.LookRotation(playerHead.forward);
+            // 만약 망치 손잡이 각도가 이상하면 오프셋을 줘야 합니다. 예: spawnRot * Quaternion.Euler(90, 0, 0)
+
+            var w = Instantiate(weapon, spawnPos, spawnRot);
+
             currentTime = gameDuration;
             currentScore = 0;
             if(uiManager)
@@ -202,8 +228,8 @@ namespace Game
                 yield return new WaitForSeconds(3.5f);
             }
 
-            // --- 여기부터 실제 게임 시작 (나중에 두더지 스폰 시작 지점) ---
-            // if (playManager) playManager.StartSpawning();
+            // --- 여기부터 실제 게임 시작 ---
+            if (moleManager) moleManager.StartGameLoop();
 
             while (0 < currentTime)
             {
@@ -216,10 +242,15 @@ namespace Game
 
             // 4. 게임 종료
             currentTime = 0.00f;
-            if (uiManager) uiManager.UpdateTimer(currentTime);
+            if (uiManager)
+            {
+                uiManager.UpdateTimer(currentTime);
+                uiManager.SetFinalScoreText(currentScore);
+            }
 
-            // --- (나중에 두더지 스폰 중지 지점) ---
-            // if (playManager) playManager.StopSpawning();
+            if (moleManager) moleManager.StopGameLoop();
+
+            Destroy(w.gameObject);
 
             EndGame();
         }
