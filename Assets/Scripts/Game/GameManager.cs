@@ -24,12 +24,12 @@ namespace Game
         private float gameDuration = 30f;
 
         // 게임 상태 변경 이벤트
-        public event UnityAction<GameState, GameState> onGameStateChanged;
+        public event UnityAction<GameState, GameState> onStateChanged;
 
-        public event UnityAction onMenuEnter;
-        public event UnityAction onGameStart;
-        public event UnityAction onGamePause;
-        public event UnityAction onGameResume;
+        public event UnityAction OnMenuEnter;
+        public event UnityAction OnGameStart;
+        public event UnityAction OnGamePause;
+        public event UnityAction OnGameResume;
         public event UnityAction onGameOver;
 
         private GameState previousState;
@@ -42,7 +42,7 @@ namespace Game
             {
                 previousState = currentState;
                 currentState = value;
-                onGameStateChanged?.Invoke(previousState, currentState);
+                onStateChanged?.Invoke(previousState, currentState);
             }
         }
 
@@ -58,13 +58,30 @@ namespace Game
             if (!Instance) Instance = this;
             else Destroy(gameObject);
 
-            onGameStateChanged += OnGameStateChanged;
+            onStateChanged += OnGameStateChanged;
         }
 
         private void Start()
         {
             GameState = GameState.Menu;
         }
+
+        private void Update()
+        {
+            if (OVRInput.GetDown(OVRInput.Button.Start))
+            {
+                TogglePause();
+            }
+        }
+
+        public void TogglePause()
+        {
+            if (currentState == GameState.Playing) PauseGame();
+            else if (currentState == GameState.Paused) ResumeGame();
+        }
+
+        public void SetGameTime(float time) => gameDuration = time;
+        public float GetGameTime() => gameDuration;
 
         public void StartGame() => GameState = GameState.Playing;
         public void EndGame() => GameState = GameState.GameOver;
@@ -85,6 +102,8 @@ namespace Game
 
         public void RestartGame()
         {
+            EndGame();
+
             StartGame();
         }
 
@@ -95,25 +114,28 @@ namespace Game
             switch (newState)
             {
                 case GameState.Menu:
-                    onMenuEnter?.Invoke();
+                    OnMenuEnter?.Invoke();
                     HandleMenuState();
                     break;
                 case GameState.Playing:
                     if (prevState == GameState.Paused)
                     {
-                        onGameResume?.Invoke();
+                        Time.timeScale = 1f;
+                        OnGameResume?.Invoke();
                     }
                     else
                     {
-                        onGameStart?.Invoke();
+                        OnGameStart?.Invoke();
                         HandlePlayingState();
                     }
                     break;
                 case GameState.Paused:
-                    onGamePause?.Invoke();
+                    Time.timeScale = 0f;
+                    OnGamePause?.Invoke();
                     break;
                 case GameState.GameOver:
                     onGameOver?.Invoke();
+                    HandleGameOverState();
                     break;
             }
         }
@@ -133,7 +155,7 @@ namespace Game
 
             // UI 초기화
             uiManager.UpdateScore(0);
-            uiManager.UpdateTimer(0);
+            uiManager.UpdateTimer(gameDuration);
 
             // 게임 시퀀스 시작 (카운트다운 -> 게임)
             if (gameRoutine != null) StopCoroutine(gameRoutine);
@@ -150,7 +172,7 @@ namespace Game
         private IEnumerator GameSequenceRoutine()
         {
             // 1. 초기화
-            currentTime = 0f;
+            currentTime = gameDuration;
             currentScore = 0;
             if(uiManager)
             {
@@ -173,20 +195,19 @@ namespace Game
                 uiManager.SetCountdownText("START!", true);
                 yield return new WaitForSeconds(0.5f);
 
-                uiManager.SetCountdownText("", false); // 텍스트 끄기
+                uiManager.SetCountdownText("", false);
             }
             else
             {
-                yield return new WaitForSeconds(3.5f); // UI가 없어도 시간은 기다림
+                yield return new WaitForSeconds(3.5f);
             }
 
             // --- 여기부터 실제 게임 시작 (나중에 두더지 스폰 시작 지점) ---
             // if (playManager) playManager.StartSpawning();
 
-            // 3. 타이머 루프 (0.00 -> 5.00)
-            while (currentTime < gameDuration)
+            while (0 < currentTime)
             {
-                currentTime += Time.deltaTime;
+                currentTime -= Time.deltaTime;
 
                 if (uiManager) uiManager.UpdateTimer(currentTime);
 
@@ -194,13 +215,13 @@ namespace Game
             }
 
             // 4. 게임 종료
-            currentTime = gameDuration;
+            currentTime = 0.00f;
             if (uiManager) uiManager.UpdateTimer(currentTime);
 
             // --- (나중에 두더지 스폰 중지 지점) ---
             // if (playManager) playManager.StopSpawning();
 
-            GameState = GameState.GameOver; // 상태 변경 -> 결과창 뜸
+            EndGame();
         }
     }
 }
