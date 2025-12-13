@@ -78,8 +78,6 @@ namespace Game.Mole
 
         private void OnTriggerEnter(Collider other)
         {
-            print(other.gameObject.name);
-
             if (MoleState is MoleState.None or MoleState.Warning) return;
             if (!other.CompareTag("Hammer")) return;
 
@@ -147,7 +145,16 @@ namespace Game.Mole
         {
             MoleState = MoleState.Hit;
 
-            GameManager.Instance.AddScore(1);
+            // 콤보 시스템을 통한 점수 추가
+            if (GameManager.Instance?.ScoreManager != null)
+            {
+                GameManager.Instance.ScoreManager.AddMoleHit();
+            }
+            else
+            {
+                // ScoreManager가 없으면 기존 방식 사용
+                GameManager.Instance?.AddScore(1);
+            }
 
             var animFinished = false;
             moleAnim.PlayHit(() => animFinished = true);

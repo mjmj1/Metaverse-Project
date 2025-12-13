@@ -21,10 +21,10 @@ namespace Game
         [SerializeField] private GameObject weapon;
         [SerializeField] private MoleManager moleManager;
         [SerializeField] private UIManager uiManager;
+        [SerializeField] private ScoreManager scoreManager;
 
-        // 게임 설정 기능
-        // 기본 30초
-        private float gameDuration = 30f;
+        [Header("Game Settings")]
+        [SerializeField] private float gameDuration = 30f;
         private float spawnRange = 0f;
 
         // 게임 상태 변경 이벤트
@@ -87,10 +87,12 @@ namespace Game
         public void AddScore(int score)
         {
             currentScore += score;
-            uiManager.UpdateScore(currentScore);
+            if (uiManager) uiManager.UpdateScore(currentScore);
         }
 
         public int GetScore() => currentScore;
+
+        public ScoreManager ScoreManager => scoreManager;
 
         public void SetGameTime(float time) => gameDuration = time;
         public float GetGameTime() => gameDuration;
@@ -124,7 +126,7 @@ namespace Game
 
         private void OnGameStateChanged(GameState prevState, GameState newState)
         {
-            print($"Game State Changed: [{prevState}] -> [{newState}]");
+            Debug.Log($"Game State Changed: [{prevState}] -> [{newState}]");
 
             switch (newState)
             {
@@ -168,9 +170,15 @@ namespace Game
             currentScore = 0;
             currentTime = 0f;
 
+            // ScoreManager 초기화
+            if (scoreManager) scoreManager.ResetScore();
+
             // UI 초기화
-            uiManager.UpdateScore(0);
-            uiManager.UpdateTimer(gameDuration);
+            if (uiManager)
+            {
+                uiManager.UpdateScore(0);
+                uiManager.UpdateTimer(gameDuration);
+            }
 
             // 게임 시퀀스 시작 (카운트다운 -> 게임)
             if (gameRoutine != null) StopCoroutine(gameRoutine);
@@ -181,7 +189,25 @@ namespace Game
         {
             if (gameRoutine != null) StopCoroutine(gameRoutine);
             if (moleManager) moleManager.StopGameLoop();
+
+            // 최고 점수 저장
+            SaveHighScore();
         }
+
+        private void SaveHighScore()
+        {
+            int finalScore = scoreManager ? scoreManager.CurrentScore : currentScore;
+            int highScore = PlayerPrefs.GetInt("HighScore", 0);
+
+            if (finalScore > highScore)
+            {
+                PlayerPrefs.SetInt("HighScore", finalScore);
+                PlayerPrefs.Save();
+                Debug.Log($"New High Score: {finalScore}");
+            }
+        }
+
+        public int GetHighScore() => PlayerPrefs.GetInt("HighScore", 0);
 
         // --- 핵심: 게임 루프 코루틴 ---
         private IEnumerator GameSequenceRoutine()

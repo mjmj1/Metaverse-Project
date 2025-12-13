@@ -21,6 +21,7 @@ namespace Game
         [Header("Spawn Logic")]
         [SerializeField] private float initialSpawnInterval = 1.5f;
         [SerializeField] private Vector2Int groupCountRange = new(1, 2);
+        [SerializeField] private float difficultyIncreaseRate = 0.02f;
 
         // 내부 변수
         private readonly List<Transform> holes = new();
@@ -153,7 +154,7 @@ namespace Game
                 SpawnGroup();
 
                 var waringTime = Random.Range(0.5f, 1.5f);
-                currentSpawnInterval = Mathf.Max(waringTime, currentSpawnInterval - 0.02f);
+                currentSpawnInterval = Mathf.Max(waringTime, currentSpawnInterval - difficultyIncreaseRate);
             }
         }
 
