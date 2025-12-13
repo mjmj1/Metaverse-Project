@@ -27,6 +27,9 @@ namespace Game
         [SerializeField] private float gameDuration = 30f;
         private float spawnRange = 0f;
 
+        // 망치 오브젝트 풀링
+        private GameObject weaponPool;
+
         // 게임 상태 변경 이벤트
         public event UnityAction<GameState, GameState> OnStateChanged;
 
@@ -67,7 +70,18 @@ namespace Game
 
         private void Start()
         {
+            InitializeWeaponPool();
             GameState = GameState.Menu;
+        }
+
+        private void InitializeWeaponPool()
+        {
+            if (!weapon) return;
+
+            // 망치 오브젝트 풀 생성
+            weaponPool = Instantiate(weapon);
+            weaponPool.name = "WeaponPool";
+            weaponPool.SetActive(false); // 비활성화 상태로 대기
         }
 
         private void Update()
@@ -162,6 +176,9 @@ namespace Game
             Time.timeScale = 1f;
             if (gameRoutine != null) StopCoroutine(gameRoutine);
             if (moleManager) moleManager.StopGameLoop();
+
+            // 망치 비활성화
+            if (weaponPool) weaponPool.SetActive(false);
         }
 
         private void HandlePlayingState()
@@ -216,13 +233,24 @@ namespace Game
             moleManager.Initialize();
 
             var spawnDistance = 0.5f;
-
             var spawnPos = playerHead.position + playerHead.forward * spawnDistance + playerHead.up * -0.3f;
-
             var spawnRot = Quaternion.LookRotation(playerHead.forward);
-            // 만약 망치 손잡이 각도가 이상하면 오프셋을 줘야 합니다. 예: spawnRot * Quaternion.Euler(90, 0, 0)
 
-            var w = Instantiate(weapon, spawnPos, spawnRot);
+            // 망치 오브젝트 풀에서 활성화
+            if (weaponPool)
+            {
+                weaponPool.transform.position = spawnPos;
+                weaponPool.transform.rotation = spawnRot;
+                weaponPool.SetActive(true);
+
+                // Rigidbody 초기화 (속도 리셋)
+                var rb = weaponPool.GetComponent<Rigidbody>();
+                if (rb)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
+            }
 
             currentTime = gameDuration;
             currentScore = 0;
@@ -283,7 +311,11 @@ namespace Game
             // 게임 오버 사운드
             if (AudioManager.Instance) AudioManager.Instance.PlayGameOver();
 
-            Destroy(w.gameObject);
+            // 망치 비활성화 (파괴하지 않음)
+            if (weaponPool)
+            {
+                weaponPool.SetActive(false);
+            }
 
             EndGame();
         }

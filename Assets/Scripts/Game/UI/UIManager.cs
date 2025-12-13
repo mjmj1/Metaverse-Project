@@ -20,6 +20,8 @@ namespace Game.UI
         [SerializeField] private TextMeshProUGUI countdownText;
         [SerializeField] private TextMeshProUGUI timerText;
         [SerializeField] private TextMeshProUGUI scoreText;
+        [SerializeField] private TextMeshProUGUI comboText;
+        [SerializeField] private TextMeshProUGUI highScoreText;
 
         [Header("Result UI")]
         [SerializeField] private Canvas result;
@@ -59,6 +61,16 @@ namespace Game.UI
 
             rangeSlider.onValueChanged.AddListener(OnRangeSliderChanged);
 
+            // ScoreManager 이벤트 구독
+            if (GameManager.Instance.ScoreManager)
+            {
+                GameManager.Instance.ScoreManager.OnScoreChanged.AddListener(UpdateScore);
+                GameManager.Instance.ScoreManager.OnComboChanged.AddListener(UpdateCombo);
+            }
+
+            // 최고 점수 표시
+            UpdateHighScore();
+
             SwitchUI(GameState.Menu);
         }
 
@@ -78,7 +90,14 @@ namespace Game.UI
             homeButton.onClick.RemoveListener(GameManager.Instance.ReturnMenu);
 
             timeSlider.onValueChanged.RemoveListener(OnTimeSliderChanged);
-            timeSlider.onValueChanged.RemoveListener(OnRangeSliderChanged);
+            rangeSlider.onValueChanged.RemoveListener(OnRangeSliderChanged);
+
+            // ScoreManager 이벤트 구독 해제
+            if (GameManager.Instance?.ScoreManager)
+            {
+                GameManager.Instance.ScoreManager.OnScoreChanged.RemoveListener(UpdateScore);
+                GameManager.Instance.ScoreManager.OnComboChanged.RemoveListener(UpdateCombo);
+            }
         }
 
         private void SwitchUI(GameState state)
@@ -138,6 +157,30 @@ namespace Game.UI
         public void UpdateTimer(float time) => timerText.text = time.ToString("F2");
 
         public void UpdateScore(int score) => scoreText.text = score.ToString();
+
+        public void UpdateCombo(int combo)
+        {
+            if (!comboText) return;
+
+            if (combo > 1)
+            {
+                comboText.text = $"{combo}x COMBO!";
+                comboText.gameObject.SetActive(true);
+            }
+            else
+            {
+                comboText.text = "";
+                comboText.gameObject.SetActive(false);
+            }
+        }
+
+        public void UpdateHighScore()
+        {
+            if (!highScoreText) return;
+
+            int highScore = GameManager.Instance.GetHighScore();
+            highScoreText.text = $"High Score: {highScore:N0}";
+        }
 
         public void SetFinalScoreText(int score) => finalScoreText.text = $"SCORE: {score}";
 
