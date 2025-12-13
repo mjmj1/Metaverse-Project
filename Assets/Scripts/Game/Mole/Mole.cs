@@ -145,6 +145,17 @@ namespace Game.Mole
         {
             MoleState = MoleState.Hit;
 
+            // 사운드 재생
+            if (AudioManager.Instance)
+            {
+                AudioManager.Instance.PlayMoleHit();
+            }
+
+            // VR 햅틱 피드백 (0.15초)
+            OVRInput.SetControllerVibration(1f, 0.8f, OVRInput.Controller.RTouch);
+            yield return new WaitForSeconds(0.15f);
+            OVRInput.SetControllerVibration(0f, 0f, OVRInput.Controller.RTouch);
+
             // 콤보 시스템을 통한 점수 추가
             if (GameManager.Instance?.ScoreManager != null)
             {

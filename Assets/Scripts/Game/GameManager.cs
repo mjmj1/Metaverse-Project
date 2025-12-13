@@ -236,15 +236,19 @@ namespace Game
             if (uiManager)
             {
                 uiManager.SetCountdownText("3", true);
+                if (AudioManager.Instance) AudioManager.Instance.PlayCountdown();
                 yield return new WaitForSeconds(1f);
 
                 uiManager.SetCountdownText("2", true);
+                if (AudioManager.Instance) AudioManager.Instance.PlayCountdown();
                 yield return new WaitForSeconds(1f);
 
                 uiManager.SetCountdownText("1", true);
+                if (AudioManager.Instance) AudioManager.Instance.PlayCountdown();
                 yield return new WaitForSeconds(1f);
 
                 uiManager.SetCountdownText("START!", true);
+                if (AudioManager.Instance) AudioManager.Instance.PlayGameStart();
                 yield return new WaitForSeconds(0.5f);
 
                 uiManager.SetCountdownText("", false);
@@ -275,6 +279,9 @@ namespace Game
             }
 
             if (moleManager) moleManager.StopGameLoop();
+
+            // 게임 오버 사운드
+            if (AudioManager.Instance) AudioManager.Instance.PlayGameOver();
 
             Destroy(w.gameObject);
 
