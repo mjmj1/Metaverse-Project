@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Game.UI;
@@ -18,17 +19,17 @@ namespace Game
     {
         [Header("Game Components")]
         [SerializeField] private Transform playerHead;
-        [SerializeField] private GameObject weapon;
+        [SerializeField] private GameObject weaponPrefab;
         [SerializeField] private MoleManager moleManager;
         [SerializeField] private UIManager uiManager;
         [SerializeField] private ScoreManager scoreManager;
 
-        [Header("Game Settings")]
-        [SerializeField] private float gameDuration = 30f;
+        private float gameDuration = 30f;
         private float spawnRange = 0f;
+        private float spawnRadius = 1f;
 
         // 망치 오브젝트 풀링
-        private GameObject weaponPool;
+        private GameObject weapon;
 
         // 게임 상태 변경 이벤트
         public event UnityAction<GameState, GameState> OnStateChanged;
@@ -68,28 +69,41 @@ namespace Game
             OnStateChanged += OnGameStateChanged;
         }
 
+        private void OnDestroy()
+        {
+            OnStateChanged -= OnGameStateChanged;
+        }
+
         private void Start()
         {
-            InitializeWeaponPool();
+            InitializeWeapon();
             GameState = GameState.Menu;
         }
 
-        private void InitializeWeaponPool()
+        private void InitializeWeapon()
         {
-            if (!weapon) return;
+            if (!weaponPrefab) return;
 
-            // 망치 오브젝트 풀 생성
-            weaponPool = Instantiate(weapon);
-            weaponPool.name = "WeaponPool";
-            weaponPool.SetActive(false); // 비활성화 상태로 대기
+            weapon = Instantiate(weaponPrefab);
+            weapon.name = "Weapon";
+            weapon.SetActive(false);
+        }
+
+        private void HandleWeapon(bool visible, Vector3 pos = default, Quaternion rot = default)
+        {
+            if (!weapon)
+            {
+                InitializeWeapon();
+            }
+
+            weapon.SetActive(visible);
+            weapon.transform.position = pos;
+            weapon.transform.rotation = rot;
         }
 
         private void Update()
         {
-            if (OVRInput.GetDown(OVRInput.Button.Start))
-            {
-                TogglePause();
-            }
+            if (OVRInput.GetDown(OVRInput.Button.Start)) TogglePause();
         }
 
         private void TogglePause()
@@ -114,21 +128,21 @@ namespace Game
         public void SetSpawnRange(float range) => spawnRange = range;
         public float GetSpawnRange() => spawnRange;
 
+        public void SetSpawnRadius(float radius) => spawnRadius = (float)Math.Round(radius, 1);
+        public float GetSpawnRadius() => spawnRadius;
+
         public void StartGame() => GameState = GameState.Playing;
         public void EndGame() => GameState = GameState.GameOver;
         public void ReturnMenu() => GameState = GameState.Menu;
 
         public void PauseGame()
         {
-            if (currentState != GameState.Playing) return;
-
-            GameState = GameState.Paused;
+            if (currentState == GameState.Playing) GameState = GameState.Paused;
         }
+
         public void ResumeGame()
         {
-            if (currentState != GameState.Paused) return;
-
-            GameState = GameState.Playing;
+            if (currentState == GameState.Paused) GameState = GameState.Playing;
         }
 
         public void RestartGame()
@@ -140,11 +154,12 @@ namespace Game
 
         private void OnGameStateChanged(GameState prevState, GameState newState)
         {
-            Debug.Log($"Game State Changed: [{prevState}] -> [{newState}]");
+            print($"Game State Changed: [{prevState}] -> [{newState}]");
 
             switch (newState)
             {
                 case GameState.Menu:
+                    AudioManager.Instance.PlayLobbyBGM();
                     OnMenuEnter?.Invoke();
                     HandleMenuState();
                     break;
@@ -176,9 +191,7 @@ namespace Game
             Time.timeScale = 1f;
             if (gameRoutine != null) StopCoroutine(gameRoutine);
             if (moleManager) moleManager.StopGameLoop();
-
-            // 망치 비활성화
-            if (weaponPool) weaponPool.SetActive(false);
+            if (weapon) HandleWeapon(false);
         }
 
         private void HandlePlayingState()
@@ -213,15 +226,14 @@ namespace Game
 
         private void SaveHighScore()
         {
-            int finalScore = scoreManager ? scoreManager.CurrentScore : currentScore;
-            int highScore = PlayerPrefs.GetInt("HighScore", 0);
+            var finalScore = scoreManager ? scoreManager.CurrentScore : currentScore;
+            var highScore = PlayerPrefs.GetInt("HighScore", 0);
 
-            if (finalScore > highScore)
-            {
-                PlayerPrefs.SetInt("HighScore", finalScore);
-                PlayerPrefs.Save();
-                Debug.Log($"New High Score: {finalScore}");
-            }
+            if (finalScore <= highScore) return;
+
+            PlayerPrefs.SetInt("HighScore", finalScore);
+            PlayerPrefs.Save();
+            print($"New High Score: {finalScore}");
         }
 
         public int GetHighScore() => PlayerPrefs.GetInt("HighScore", 0);
@@ -229,27 +241,19 @@ namespace Game
         // --- 핵심: 게임 루프 코루틴 ---
         private IEnumerator GameSequenceRoutine()
         {
+            AudioManager.Instance.StopBGM();
+
             // 1. 초기화
             moleManager.Initialize();
 
-            var spawnDistance = 0.5f;
-            var spawnPos = playerHead.position + playerHead.forward * spawnDistance + playerHead.up * -0.3f;
-            var spawnRot = Quaternion.LookRotation(playerHead.forward);
-
             // 망치 오브젝트 풀에서 활성화
-            if (weaponPool)
+            if (weapon)
             {
-                weaponPool.transform.position = spawnPos;
-                weaponPool.transform.rotation = spawnRot;
-                weaponPool.SetActive(true);
+                var spawnDistance = 0.5f;
+                var spawnPos = playerHead.position + playerHead.forward * spawnDistance + playerHead.up * -0.3f;
+                var spawnRot = Quaternion.LookRotation(playerHead.forward);
 
-                // Rigidbody 초기화 (속도 리셋)
-                var rb = weaponPool.GetComponent<Rigidbody>();
-                if (rb)
-                {
-                    rb.velocity = Vector3.zero;
-                    rb.angularVelocity = Vector3.zero;
-                }
+                HandleWeapon(true, spawnPos, spawnRot);
             }
 
             currentTime = gameDuration;
@@ -298,7 +302,6 @@ namespace Game
                 yield return null; // 1프레임 대기
             }
 
-            // 4. 게임 종료
             currentTime = 0.00f;
             if (uiManager)
             {
@@ -307,15 +310,8 @@ namespace Game
             }
 
             if (moleManager) moleManager.StopGameLoop();
-
-            // 게임 오버 사운드
             if (AudioManager.Instance) AudioManager.Instance.PlayGameOver();
-
-            // 망치 비활성화 (파괴하지 않음)
-            if (weaponPool)
-            {
-                weaponPool.SetActive(false);
-            }
+            if (weapon) HandleWeapon(false);
 
             EndGame();
         }

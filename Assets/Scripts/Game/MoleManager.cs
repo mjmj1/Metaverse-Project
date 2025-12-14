@@ -8,15 +8,14 @@ namespace Game
     public class MoleManager : MonoBehaviour
     {
         [Header("Settings")]
-        [SerializeField] private Mole.Mole molePrefab;
-        [SerializeField] private int poolSize = 20;
+        [SerializeField] private Mole.Mole[] molePrefabs;
+        [SerializeField] private int poolSize = 30;
 
         [Header("Dome Generation")]
         [SerializeField] private Transform playerHead;
         [SerializeField] private int holeCount = 15;
-        [SerializeField] private float radius = 2.0f;
-        [SerializeField] private float minPitch = -20f;
-        [SerializeField] private float maxPitch = 40f;
+        [SerializeField] private float minPitch = -10f;
+        [SerializeField] private float maxPitch = 30f;
 
         [Header("Spawn Logic")]
         [SerializeField] private float initialSpawnInterval = 1.5f;
@@ -66,8 +65,8 @@ namespace Game
             var pitch = pitchDeg * Mathf.Deg2Rad;
             var yaw = yawDeg * Mathf.Deg2Rad;
 
-            var y = Mathf.Sin(pitch) * radius;
-            var h = Mathf.Cos(pitch) * radius;
+            var y = Mathf.Sin(pitch) * GameManager.Instance.GetSpawnRadius();
+            var h = Mathf.Cos(pitch) * GameManager.Instance.GetSpawnRadius();
             var x = Mathf.Cos(yaw) * h;
             var z = Mathf.Sin(yaw) * h;
 
@@ -88,7 +87,8 @@ namespace Game
 
             for (var i = 0; i < poolSize; i++)
             {
-                var m = Instantiate(molePrefab, transform);
+                var prefab = molePrefabs[Random.Range(0, molePrefabs.Length)];
+                var m = Instantiate(prefab, transform);
                 m.gameObject.SetActive(false);
                 pool.Enqueue(m);
             }
@@ -148,17 +148,25 @@ namespace Game
 
         private IEnumerator SpawnRoutine()
         {
+            var nextDifficultyTime = Time.time + 5.0f;
+
             while (GameManager.Instance.GameState is GameState.Playing or GameState.Paused)
             {
-                yield return new WaitForSeconds(currentSpawnInterval);
-                SpawnGroup();
+                var warningTime = Random.Range(0.5f, 1.5f);
 
-                var waringTime = Random.Range(0.5f, 1.5f);
-                currentSpawnInterval = Mathf.Max(waringTime, currentSpawnInterval - difficultyIncreaseRate);
+                yield return new WaitForSeconds(currentSpawnInterval);
+                SpawnGroup(warningTime);
+
+                if (Time.time >= nextDifficultyTime)
+                {
+                    currentSpawnInterval = Mathf.Max(1f, currentSpawnInterval - difficultyIncreaseRate);
+
+                    nextDifficultyTime = Time.time + 5.0f;
+                }
             }
         }
 
-        private void SpawnGroup()
+        private void SpawnGroup(float warningTime)
         {
             var count = Random.Range(groupCountRange.x, groupCountRange.y + 1);
             count = Mathf.Min(count, holes.Count - activeMoles.Count);
@@ -170,7 +178,7 @@ namespace Game
                 var holeIndex = GetRandomFreeHole();
                 if (holeIndex != -1)
                 {
-                    SpawnMoleAt(holeIndex);
+                    SpawnMoleAt(holeIndex, warningTime);
                 }
             }
         }
@@ -191,7 +199,7 @@ namespace Game
             return -1;
         }
 
-        private void SpawnMoleAt(int holeIndex)
+        private void SpawnMoleAt(int holeIndex, float warningTime)
         {
             var mole = pool.Dequeue();
             var holeTr = holes[holeIndex];
@@ -203,7 +211,7 @@ namespace Game
 
             activeMoles.Add(holeIndex, mole);
 
-            mole.Pop(0.5f, m =>
+            mole.Pop(warningTime, m =>
             {
                 if (this) ReturnToPool(m, holeIndex);
             });

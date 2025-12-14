@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Hammer
+  - Grab
+  - Blade
+  - Mole
   layers:
   - Default
   - TransparentFX

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using Random = UnityEngine.Random;
 
 namespace Game.Mole
 {
@@ -17,6 +18,15 @@ namespace Game.Mole
 
     public class Mole : MonoBehaviour
     {
+        [Header("Effects")]
+        [SerializeField] private ParticleSystem hitVfx;
+        [SerializeField] private AudioSource audioSource;
+        [SerializeField] private AudioClip warningClip;
+        [SerializeField] private AudioClip risingClip;
+        [SerializeField] private AudioClip hidingClip;
+        [SerializeField] private AudioClip hitClip;
+
+        [Header("Mole Settings")]
         [SerializeField] private Transform body;
         [SerializeField] private float risingTime;
         [SerializeField] private float idleTime;
@@ -35,6 +45,8 @@ namespace Game.Mole
 
         private MoleState previousState;
         private MoleState currentState = MoleState.None;
+
+        private MoleMaterial moleMaterial;
 
         public MoleState MoleState
         {
@@ -72,16 +84,57 @@ namespace Game.Mole
         private void Awake()
         {
             moleAnim = GetComponent<MoleAnimation>();
+            moleMaterial = GetComponent<MoleMaterial>();
 
             Hide();
+        }
+
+        private void Start()
+        {
+            OnWarning += OnOnWarning;
+            OnRising += OnOnRising;
+            OnHiding += OnOnHiding;
+            OnHit += OnOnHit;
+        }
+
+
+        private void OnDestroy()
+        {
+            OnWarning -= OnOnWarning;
+            OnRising -= OnOnRising;
+            OnHiding -= OnOnHiding;
+            OnHit -= OnOnHit;
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (MoleState is MoleState.None or MoleState.Warning) return;
-            if (!other.CompareTag("Hammer")) return;
 
-            Hit();
+            if (other.CompareTag("Hammer") || other.CompareTag("Blade"))
+            {
+                Hit();
+            }
+        }
+
+        private void OnOnWarning()
+        {
+            AudioManager.Instance.Play3DSfx(audioSource, warningClip);
+        }
+
+        private void OnOnRising()
+        {
+            AudioManager.Instance.Play3DSfx(audioSource, risingClip);
+        }
+
+        private void OnOnHiding()
+        {
+            AudioManager.Instance.Play3DSfx(audioSource, hidingClip);
+        }
+
+        private void OnOnHit()
+        {
+            AudioManager.Instance.Play3DSfx(audioSource, hitClip);
+            hitVfx.Play();
         }
 
         public void Hide()
@@ -93,7 +146,12 @@ namespace Game.Mole
 
         public void Pop(float warningDuration, Action<Mole> onFinished)
         {
+            moleMaterial?.Apply();
+
             returnToPoolCallback = onFinished;
+
+            var rotX = Random.Range(0, 2) == 0 ? 20f : -20f;
+            body.transform.localRotation = Quaternion.Euler(rotX, -90f, 90f);
 
             if (routine != null) StopCoroutine(routine);
             routine = StartCoroutine(PopRoutine(warningDuration));
@@ -145,31 +203,25 @@ namespace Game.Mole
         {
             MoleState = MoleState.Hit;
 
-            // 사운드 재생
-            if (AudioManager.Instance)
-            {
-                AudioManager.Instance.PlayMoleHit();
-            }
-
-            // VR 햅틱 피드백 (0.15초)
-            OVRInput.SetControllerVibration(1f, 0.8f, OVRInput.Controller.RTouch);
-            yield return new WaitForSeconds(0.15f);
-            OVRInput.SetControllerVibration(0f, 0f, OVRInput.Controller.RTouch);
+            OVRInput.SetControllerVibration(1f, 1f);
+            yield return new WaitForSeconds(0.1f);
+            OVRInput.SetControllerVibration(0f, 0f);
 
             // 콤보 시스템을 통한 점수 추가
-            if (GameManager.Instance?.ScoreManager != null)
+            if (GameManager.Instance?.ScoreManager)
             {
                 GameManager.Instance.ScoreManager.AddMoleHit();
             }
             else
             {
-                // ScoreManager가 없으면 기존 방식 사용
                 GameManager.Instance?.AddScore(1);
             }
 
             var animFinished = false;
             moleAnim.PlayHit(() => animFinished = true);
             yield return new WaitUntil(() => animFinished);
+
+            yield return new WaitForSeconds(0.5f);
 
             FinishCycle();
         }

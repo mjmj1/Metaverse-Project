@@ -64,7 +64,7 @@ namespace Game
             // 점수 추가
             AddScore(totalScore);
 
-            Debug.Log($"두더지 타격! 기본: {baseMoleScore}, 콤보 보너스: {comboBonus}, 총: {totalScore}");
+            print($"두더지 타격! 기본: {baseMoleScore}, 콤보 보너스: {comboBonus}, 총: {totalScore}");
         }
 
         /// <summary>
