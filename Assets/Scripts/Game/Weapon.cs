@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Game
@@ -9,12 +10,26 @@ namespace Game
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioClip attackClip;
 
+        private WaitForSeconds wait = new (0.1f);
+        private bool isAttacked;
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("Mole"))
             {
-                AudioManager.Instance.Play3DSfx(audioSource, attackClip);
+                StartCoroutine(PlayOnceSfx());
             }
+        }
+
+        private IEnumerator PlayOnceSfx()
+        {
+            if(isAttacked) yield break;
+
+            isAttacked = true;
+            AudioManager.Instance.Play3DSfx(audioSource, attackClip);
+
+            yield return wait;
+            isAttacked = false;
         }
     }
 }

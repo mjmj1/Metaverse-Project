@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; // Dictionary Keys 복사용
+using System.Linq;
 using UnityEngine;
 
 namespace Game
@@ -12,7 +12,7 @@ namespace Game
         [SerializeField] private int poolSize = 30;
 
         [Header("Dome Generation")]
-        [SerializeField] private Transform playerHead;
+        [SerializeField] private Transform target;
         [SerializeField] private int holeCount = 15;
         [SerializeField] private float minPitch = -10f;
         [SerializeField] private float maxPitch = 30f;
@@ -33,7 +33,7 @@ namespace Game
         private void OnDrawGizmosSelected()
         {
             // 기준점 설정 (플레이어 머리 or 매니저 위치)
-            var center = playerHead ? playerHead.position : transform.position;
+            var center = target ? target.position : transform.position;
 
             Gizmos.color = Color.red;
 
@@ -101,7 +101,7 @@ namespace Game
             holes.Clear();
             activeMoles.Clear();
 
-            var center = playerHead.position;
+            var center = target.position - Vector3.up * 0.4f;
             var extraRange = GameManager.Instance.GetSpawnRange();
 
             for (var i = 0; i < holeCount; i++)

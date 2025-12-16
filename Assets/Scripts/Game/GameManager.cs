@@ -4,6 +4,7 @@ using UnityEngine;
 using Game.UI;
 using Meta.WitAi;
 using UnityEngine.Events;
+using UnityEngine.SocialPlatforms.Impl;
 
 namespace Game
 {
@@ -26,7 +27,7 @@ namespace Game
 
         private float gameDuration = 30f;
         private float spawnRange = 0f;
-        private float spawnRadius = 1f;
+        private float spawnRadius = 10f;
 
         // 망치 오브젝트 풀링
         private GameObject weapon;
@@ -58,7 +59,6 @@ namespace Game
 
         // 내부 변수
         private float currentTime;
-        private int currentScore;
         private Coroutine gameRoutine;
 
         private void Awake()
@@ -112,14 +112,6 @@ namespace Game
             else if (currentState == GameState.Paused) ResumeGame();
         }
 
-        public void AddScore(int score)
-        {
-            currentScore += score;
-            if (uiManager) uiManager.UpdateScore(currentScore);
-        }
-
-        public int GetScore() => currentScore;
-
         public ScoreManager ScoreManager => scoreManager;
 
         public void SetGameTime(float time) => gameDuration = time;
@@ -128,8 +120,8 @@ namespace Game
         public void SetSpawnRange(float range) => spawnRange = range;
         public float GetSpawnRange() => spawnRange;
 
-        public void SetSpawnRadius(float radius) => spawnRadius = (float)Math.Round(radius, 1);
-        public float GetSpawnRadius() => spawnRadius;
+        public void SetSpawnRadius(float radius) => spawnRadius = radius;
+        public float GetSpawnRadius() => spawnRadius * 0.1f;
 
         public void StartGame() => GameState = GameState.Playing;
         public void EndGame() => GameState = GameState.GameOver;
@@ -197,7 +189,6 @@ namespace Game
         private void HandlePlayingState()
         {
             Time.timeScale = 1f;
-            currentScore = 0;
             currentTime = 0f;
 
             // ScoreManager 초기화
@@ -220,25 +211,25 @@ namespace Game
             if (gameRoutine != null) StopCoroutine(gameRoutine);
             if (moleManager) moleManager.StopGameLoop();
 
-            // 최고 점수 저장
             SaveHighScore();
         }
 
         private void SaveHighScore()
         {
-            var finalScore = scoreManager ? scoreManager.CurrentScore : currentScore;
+            var finalScore = scoreManager.CurrentScore;
             var highScore = PlayerPrefs.GetInt("HighScore", 0);
 
             if (finalScore <= highScore) return;
 
             PlayerPrefs.SetInt("HighScore", finalScore);
             PlayerPrefs.Save();
+
+            uiManager.UpdateHighScore();
             print($"New High Score: {finalScore}");
         }
 
         public int GetHighScore() => PlayerPrefs.GetInt("HighScore", 0);
 
-        // --- 핵심: 게임 루프 코루틴 ---
         private IEnumerator GameSequenceRoutine()
         {
             AudioManager.Instance.StopBGM();
@@ -257,16 +248,12 @@ namespace Game
             }
 
             currentTime = gameDuration;
-            currentScore = 0;
-            if(uiManager)
-            {
-                uiManager.UpdateTimer(0);
-                uiManager.UpdateScore(0);
-            }
+            if (scoreManager) scoreManager.ResetScore();
 
-            // 2. 카운트다운 (3초)
             if (uiManager)
             {
+                uiManager.UpdateTimer(currentTime);
+
                 uiManager.SetCountdownText("3", true);
                 if (AudioManager.Instance) AudioManager.Instance.PlayCountdown();
                 yield return new WaitForSeconds(1f);
@@ -290,7 +277,6 @@ namespace Game
                 yield return new WaitForSeconds(3.5f);
             }
 
-            // --- 여기부터 실제 게임 시작 ---
             if (moleManager) moleManager.StartGameLoop();
 
             while (0 < currentTime)
@@ -303,10 +289,11 @@ namespace Game
             }
 
             currentTime = 0.00f;
+
             if (uiManager)
             {
                 uiManager.UpdateTimer(currentTime);
-                uiManager.SetFinalScoreText(currentScore);
+                uiManager.SetFinalScoreText(scoreManager.CurrentScore);
             }
 
             if (moleManager) moleManager.StopGameLoop();

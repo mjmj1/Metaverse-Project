@@ -23,12 +23,12 @@ namespace Game.UI
         [SerializeField] private TextMeshProUGUI timerText;
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI comboText;
-        [SerializeField] private TextMeshProUGUI highScoreText;
 
         [Header("Result UI")]
         [SerializeField] private Canvas result;
         [SerializeField] private Button resultHomeButton;
         [SerializeField] private TextMeshProUGUI finalScoreText;
+        [SerializeField] private TextMeshProUGUI highScoreText;
 
         [Header("Pause UI")]
         [SerializeField] private Canvas pause;
@@ -71,12 +71,8 @@ namespace Game.UI
 
             spawnRadiusSlider.onValueChanged.AddListener(OnRadiusSliderChanged);
 
-            // ScoreManager 이벤트 구독
-            if (GameManager.Instance.ScoreManager)
-            {
-                GameManager.Instance.ScoreManager.OnScoreChanged.AddListener(UpdateScore);
-                GameManager.Instance.ScoreManager.OnComboChanged.AddListener(UpdateCombo);
-            }
+            GameManager.Instance.ScoreManager.onScoreChanged.AddListener(UpdateScore);
+            GameManager.Instance.ScoreManager.onComboChanged.AddListener(UpdateCombo);
 
             // 최고 점수 표시
             UpdateHighScore();
@@ -108,8 +104,8 @@ namespace Game.UI
             // ScoreManager 이벤트 구독 해제
             if (GameManager.Instance?.ScoreManager)
             {
-                GameManager.Instance.ScoreManager.OnScoreChanged.RemoveListener(UpdateScore);
-                GameManager.Instance.ScoreManager.OnComboChanged.RemoveListener(UpdateCombo);
+                GameManager.Instance.ScoreManager.onScoreChanged.RemoveListener(UpdateScore);
+                GameManager.Instance.ScoreManager.onComboChanged.RemoveListener(UpdateCombo);
             }
         }
 
@@ -120,8 +116,9 @@ namespace Game.UI
             resumeButton.onClick.AddListener(Sfx);
             restartButton.onClick.AddListener(Sfx);
             homeButton.onClick.AddListener(Sfx);
-            timeSlider.onValueChanged.AddListener(f => Sfx());
-            spawnRangeSlider.onValueChanged.AddListener(f => Sfx());
+            timeSlider.onValueChanged.AddListener(_ => Sfx());
+            spawnRangeSlider.onValueChanged.AddListener(_ => Sfx());
+            spawnRadiusSlider.onValueChanged.AddListener(_ => Sfx());
         }
 
         private void RemoveSfx()
@@ -131,8 +128,9 @@ namespace Game.UI
             resumeButton.onClick.RemoveListener(Sfx);
             restartButton.onClick.RemoveListener(Sfx);
             homeButton.onClick.RemoveListener(Sfx);
-            timeSlider.onValueChanged.RemoveListener(f => Sfx());
-            spawnRangeSlider.onValueChanged.RemoveListener(f => Sfx());
+            timeSlider.onValueChanged.RemoveListener(_ => Sfx());
+            spawnRangeSlider.onValueChanged.RemoveListener(_ => Sfx());
+            spawnRadiusSlider.onValueChanged.RemoveListener(_ => Sfx());
         }
 
         private void Sfx()
@@ -200,7 +198,7 @@ namespace Game.UI
 
         private void UpdateTimeSliderText(float value) => timeSliderValueText.text = $"{value:F0}";
         private void UpdateRangeSliderText(float value) => spawnRangeSliderValueText.text = $"{value:F0}";
-        private void UpdateRadiusSliderText(float value) => spawnRadiusSliderValueText.text = $"{value:F1}";
+        private void UpdateRadiusSliderText(float value) => spawnRadiusSliderValueText.text = $"{value:F0}";
 
         public void UpdateTimer(float time) => timerText.text = time.ToString("F2");
 
@@ -210,15 +208,15 @@ namespace Game.UI
         {
             if (!comboText) return;
 
-            if (combo > 1)
+            if (combo > 0)
             {
-                comboText.text = $"{combo}x COMBO!";
                 comboText.gameObject.SetActive(true);
+                comboText.text = $"{combo} Combo!";
             }
             else
             {
-                comboText.text = "";
                 comboText.gameObject.SetActive(false);
+                comboText.text = "";
             }
         }
 
@@ -226,11 +224,11 @@ namespace Game.UI
         {
             if (!highScoreText) return;
 
-            int highScore = GameManager.Instance.GetHighScore();
+            var highScore = GameManager.Instance.GetHighScore();
             highScoreText.text = $"High Score: {highScore:N0}";
         }
 
-        public void SetFinalScoreText(int score) => finalScoreText.text = $"SCORE: {score}";
+        public void SetFinalScoreText(int score) => finalScoreText.text = $"SCORE: {score:N0}";
 
         public void SetCountdownText(string text, bool isActive)
         {

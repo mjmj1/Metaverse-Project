@@ -207,15 +207,7 @@ namespace Game.Mole
             yield return new WaitForSeconds(0.1f);
             OVRInput.SetControllerVibration(0f, 0f);
 
-            // 콤보 시스템을 통한 점수 추가
-            if (GameManager.Instance?.ScoreManager)
-            {
-                GameManager.Instance.ScoreManager.AddMoleHit();
-            }
-            else
-            {
-                GameManager.Instance?.AddScore(1);
-            }
+            GameManager.Instance.ScoreManager.AddMoleHit();
 
             var animFinished = false;
             moleAnim.PlayHit(() => animFinished = true);
