@@ -10,25 +10,32 @@ namespace Game
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioClip attackClip;
 
-        private WaitForSeconds wait = new (0.1f);
+        private readonly WaitForSeconds wait = new (0.1f);
         private bool isAttacked;
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("Mole"))
             {
-                StartCoroutine(PlayOnceSfx());
+                PlayOnceSfx();
             }
         }
 
-        private IEnumerator PlayOnceSfx()
+        private void PlayOnceSfx()
         {
-            if(isAttacked) yield break;
+            if (isAttacked) return;
 
+            StartCoroutine(PlaySfx());
+        }
+
+        private IEnumerator PlaySfx()
+        {
             isAttacked = true;
+
             AudioManager.Instance.Play3DSfx(audioSource, attackClip);
 
             yield return wait;
+
             isAttacked = false;
         }
     }

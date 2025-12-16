@@ -87,10 +87,7 @@ namespace Game.Mole
             moleMaterial = GetComponent<MoleMaterial>();
 
             Hide();
-        }
 
-        private void Start()
-        {
             OnWarning += OnOnWarning;
             OnRising += OnOnRising;
             OnHiding += OnOnHiding;
@@ -140,13 +137,13 @@ namespace Game.Mole
         public void Hide()
         {
             if (routine != null) StopCoroutine(routine);
-            moleAnim.InitPosition();
             MoleState = MoleState.None;
         }
 
         public void Pop(float warningDuration, Action<Mole> onFinished)
         {
             moleMaterial?.Apply();
+            moleAnim.InitPosition();
 
             returnToPoolCallback = onFinished;
 

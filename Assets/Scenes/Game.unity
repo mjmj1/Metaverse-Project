@@ -7583,7 +7583,7 @@ MonoBehaviour:
   comboStep: 5
   bonusScorePerStep: 50
   comboGauge: {fileID: 732130284}
-  maxGaugeWidth: 0
+  maxGaugeWidth: 200
   onScoreChanged:
     m_PersistentCalls:
       m_Calls: []

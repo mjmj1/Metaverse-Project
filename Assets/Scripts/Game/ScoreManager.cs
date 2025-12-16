@@ -84,7 +84,7 @@ namespace Game
             onComboChanged?.Invoke(comboCount);
         }
 
-        public void AddScore(int points)
+        private void AddScore(int points)
         {
             CurrentScore += points;
             onScoreChanged?.Invoke(CurrentScore);
@@ -102,7 +102,7 @@ namespace Game
             ResetCombo();
         }
 
-        public void ResetCombo()
+        private void ResetCombo()
         {
             comboCount = 0;
             onComboChanged?.Invoke(0);

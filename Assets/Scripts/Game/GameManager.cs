@@ -47,7 +47,7 @@ namespace Game
         public GameState GameState
         {
             get => currentState;
-            set
+            private set
             {
                 previousState = currentState;
                 currentState = value;
@@ -237,7 +237,6 @@ namespace Game
             // 1. 초기화
             moleManager.Initialize();
 
-            // 망치 오브젝트 풀에서 활성화
             if (weapon)
             {
                 var spawnDistance = 0.5f;
@@ -247,9 +246,9 @@ namespace Game
                 HandleWeapon(true, spawnPos, spawnRot);
             }
 
-            currentTime = gameDuration;
             if (scoreManager) scoreManager.ResetScore();
 
+            currentTime = gameDuration;
             if (uiManager)
             {
                 uiManager.UpdateTimer(currentTime);
