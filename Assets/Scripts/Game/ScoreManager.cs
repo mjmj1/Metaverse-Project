@@ -6,24 +6,23 @@ namespace Game
     public class ScoreManager : MonoBehaviour
     {
         [Header("Score Settings")] [SerializeField]
-        private int baseMoleScore = 1; // 기본 점수
+        private int baseMoleScore = 100; // 기본 점수
 
         [Header("Combo Settings")] [SerializeField]
         private float comboTimeWindow = 3.0f; // 콤보 유지 시간
 
         [SerializeField] private int comboStep = 5; // 보너스가 주어지는 콤보 단위 (5회)
-        [SerializeField] private int bonusScorePerStep = 1; // 단위 당 추가 점수
+        [SerializeField] private int bonusScorePerStep = 50; // 단위 당 추가 점수
 
         [SerializeField] private RectTransform comboGauge;
+        [SerializeField] private float maxGaugeWidth = 200f;
 
         [Header("Events")]
         public UnityEvent<int> onScoreChanged;
-
         public UnityEvent<int> onComboChanged;
 
         private int comboCount;
         private float lastHitTime;
-        private float maxGaugeWidth;
 
         public int CurrentScore { get; private set; }
 
@@ -96,7 +95,6 @@ namespace Game
             CurrentScore = 0;
             comboCount = 0;
             lastHitTime = -10f;
-            maxGaugeWidth = comboGauge.sizeDelta.x;
 
             onScoreChanged?.Invoke(0);
             onComboChanged?.Invoke(0);
